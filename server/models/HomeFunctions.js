@@ -8,27 +8,18 @@ class HomeFunctions {
         return await db.execute(sql);
     }
 
-    
     static async findAllFiltered(detailsFilter) {
-
-        let sql;
-        if (detailsFilter.status !== "הכל" && detailsFilter.zone !== "הכל") {
-            sql = `SELECT * FROM pirsumim JOIN amutot WHERE amutot.id = pirsumim.amuta_id
-           AND pirsumim.status_pirsum = '${detailsFilter.status}' AND pirsumim.zone = '${detailsFilter.zone}'`;
+        let sql = `SELECT * FROM pirsumim JOIN amutot WHERE amutot.id = pirsumim.amuta_id`;
+        const { status, zone } = detailsFilter;
+        if (status !== "הכל") {
+            sql += ` AND pirsumim.status_pirsum = '${status}'`;
         }
-        if (detailsFilter.status === "הכל" && detailsFilter.zone === "הכל") {
-            sql = `SELECT * FROM pirsumim JOIN amutot WHERE amutot.id = pirsumim.amuta_id`;
-        }
-        if (detailsFilter.status === "הכל" && detailsFilter.zone !== "הכל") {
-            sql = `SELECT * FROM pirsumim JOIN amutot WHERE amutot.id = pirsumim.amuta_id
-             AND pirsumim.zone = '${detailsFilter.zone}'`;
-        }
-        if (detailsFilter.status !== "הכל" && detailsFilter.zone === "הכל") {
-            sql = `SELECT * FROM pirsumim JOIN amutot WHERE amutot.id = pirsumim.amuta_id
-             AND pirsumim.status_pirsum = '${detailsFilter.status}'`;
+        if (zone !== "הכל") {
+            sql += ` AND pirsumim.zone = '${zone}'`;
         }
         return await db.execute(sql);
     }
+
 
     static async findOne(data) {
         let sql = 'SELECT * FROM pirsumim,amutot WHERE amutot.id = pirsumim.amuta_id AND pirsumim.id_pirsum = ?';

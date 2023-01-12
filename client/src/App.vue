@@ -11,7 +11,6 @@ export default {
   name: 'App',
 
   data: () => ({
-    //
   }),
   created() {
     // localStorage.setItem("HOST","http://localhost:3000")

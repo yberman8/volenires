@@ -14,10 +14,8 @@ class Home {
   static async getAllPirsumim(req, res) {
     try {
       const [users, _] = await HomeFunctions.findAll();
-      for (let i = 0; i < users.length; i++) {
-        users[i].password = ""
-      }
-      res.status(200).json(users);
+      
+      res.status(200).json(Home.maskPasswords(users));
     } catch (error) {
       console.log(error);
     }
@@ -27,10 +25,8 @@ class Home {
 
     try {
       const [users, _] = await HomeFunctions.findAllFiltered(req.body);
-      for (let i = 0; i < users.length; i++) {
-        users[i].password = ""
-      }
-      res.status(200).json(users);
+      
+      res.status(200).json(Home.maskPasswords(users));
     } catch (error) {
       console.log(error);
     }
@@ -39,10 +35,8 @@ class Home {
   static async getSinglePirsumim(req, res) {
     try {
       const [users, _] = await HomeFunctions.findOne(req.body);
-      for (let i = 0; i < users.length; i++) {
-        users[i].password = ""
-      }
-      res.status(200).json(users);
+     
+      res.status(200).json(Home.maskPasswords(users));
     } catch (error) {
       console.log(error);
     }
@@ -58,6 +52,12 @@ class Home {
     }
   };
 
+  static maskPasswords(users) {
+    return users.map(user => {
+      user.password = "";
+      return user;
+    });
+  }
 
 }
 

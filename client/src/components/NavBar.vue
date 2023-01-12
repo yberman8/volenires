@@ -83,10 +83,7 @@ export default {
     }
   },
   methods: {
-    menuItems() {
-      return this.menu;
-    },
-
+   
     loginOrOutFunc(key) {
 
       if (key === "auth") {

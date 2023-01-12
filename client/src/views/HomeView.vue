@@ -21,7 +21,7 @@
 
      
 
-      <Login-dialog v-model="dialogLogin" v-if="dialogLogin" @show="showSnackBar" @checkAuth="checkAuth"></Login-dialog>
+      <Login-dialog v-model="dialogLogin" @show="showSnackBar" @checkAuth="checkAuth"></Login-dialog>
 
       <v-snackbar v-model="snackbar" :timeout="5000">
         {{ snacbarText }}

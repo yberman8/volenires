@@ -158,7 +158,6 @@ export default {
           this.fulldate = await FullDate.dateCalc(date)
           jsonObject[i].date_create_pirsum = date;
           jsonObject[i].fullDatePlusHeb = this.fulldate;
-
           this.showPirsumim.push(jsonObject[i]);
         }
       }).then(() => {
