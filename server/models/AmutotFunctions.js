@@ -35,12 +35,12 @@ class AmutotFunctions {
   }
 
   static async genToken(id) {
-     let token = jwt.sign({ _id: id }, process.env.SECRET_WORD, { expiresIn: "1d" })
+    let token = jwt.sign({ _id: id }, process.env.SECRET_WORD, { expiresIn: "1d" })
     return token;
   }
 
-  static async genTokenForReset(id,email) {
-    let token = jwt.sign({ _id: id,_email: email}, process.env.SECRET_WORD, { expiresIn: "1h" })
+  static async genTokenForReset(id, email) {
+    let token = jwt.sign({ _id: id, _email: email }, process.env.SECRET_WORD, { expiresIn: "1h" })
     return token;
   }
   //  expiresIn: "10h" it will be expired after 10 hours
@@ -64,7 +64,7 @@ class AmutotFunctions {
       return await db.execute(sql, [userId]);
     }
     let sql = `SELECT * FROM pirsumim WHERE amuta_id = ? AND status_pirsum = ?`;
-    return await db.query(sql,[userId,filter.filtered]);
+    return await db.query(sql, [userId, filter.filtered]);
   }
 
   static async deletePirsum(Data, userId) {
@@ -73,16 +73,14 @@ class AmutotFunctions {
   }
 
   static async editPirsum(Data, userId) {
-
     try {
       const [users, _] = await AdminFunctions.checkIfAdmin(userId);
-      if (users[0]?.is_super_manager === 1) {
-        let sql = `UPDATE pirsumim SET title=?,content=?,pirsum_show_phone=?,pirsum_show_email=?,pirsum_show_whatsapp=?,zone= ?, text_finish= ?,picture=? WHERE id_pirsum = ?`
-        return await db.query(sql, [Data.title, Data.content, Data.pirsum_show_phone, Data.pirsum_show_email, Data.pirsum_show_whatsapp, Data.zone, Data.text_finish, Data.picture, Data.id_pirsum]);  
-      }else {
-        let sql = `UPDATE pirsumim SET title=?,content=?,pirsum_show_phone=?,pirsum_show_email=?,pirsum_show_whatsapp=?,zone= ?, text_finish= ?,picture=? WHERE id_pirsum = ? AND amuta_id=?`
-        return await db.query(sql, [Data.title, Data.content, Data.pirsum_show_phone, Data.pirsum_show_email, Data.pirsum_show_whatsapp, Data.zone, Data.text_finish, Data.picture, Data.id_pirsum, userId]);
-      }
+      const isSuperManager = users[0]?.is_super_manager === 1;
+
+      const sql = `UPDATE pirsumim SET title=?, content=?, pirsum_show_phone=?, pirsum_show_email=?, pirsum_show_whatsapp=?, zone=?, pick_up_address=?, text_finish=?, picture=? WHERE id_pirsum = ${isSuperManager ? '?' : '? AND amuta_id=?'}`;
+      const params = [Data.title, Data.content, Data.pirsum_show_phone, Data.pirsum_show_email, Data.pirsum_show_whatsapp, Data.zone, Data.pick_up_address, Data.text_finish, Data.picture, Data.id_pirsum, (isSuperManager ? [] : [userId])];
+
+      return await db.query(sql, params);
     } catch (error) {
       console.log(error);
     }
@@ -115,18 +113,18 @@ class AmutotFunctions {
     return await db.query(sql, ["", pirsum_id])
   }
 
-  static async renameImagesPath(oldFolderName,newFolderName,idAmuta) {
+  static async renameImagesPath(oldFolderName, newFolderName, idAmuta) {
     let sql = `UPDATE pirsumim SET picture = REPLACE(picture,'amutot/${oldFolderName}/','amutot/${newFolderName}/') WHERE amuta_id =? `;
-    return await db.execute(sql,[idAmuta]);
+    return await db.execute(sql, [idAmuta]);
   }
-  static async renameLogoPath(oldFolderName,newFolderName,idAmuta) {
+  static async renameLogoPath(oldFolderName, newFolderName, idAmuta) {
     let sql = `UPDATE amutot SET logo = REPLACE(logo,'amutot/${oldFolderName}/','amutot/${newFolderName}/') WHERE id =?`;
-    return await db.execute(sql,[idAmuta]);
+    return await db.execute(sql, [idAmuta]);
   }
 
-  static async resetPassword(amutaEmail,newPassword) {
+  static async resetPassword(amutaEmail, newPassword) {
     let sql = `UPDATE amutot SET password= ? WHERE email = ?`
-    return await db.query(sql,[newPassword,amutaEmail])
+    return await db.query(sql, [newPassword, amutaEmail])
   }
 }
 export default AmutotFunctions;
