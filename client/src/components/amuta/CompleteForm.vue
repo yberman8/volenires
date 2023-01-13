@@ -177,24 +177,25 @@ export default {
       let MyJSON = JSON.stringify(editAmutaObj);
 
       let api = this.host + "/amuta/updateDetails"
+      try {
+        let response = await fetch(api, RequestOptions.request("PUT", MyJSON, token));
 
-      fetch(api, RequestOptions.request("PUT", MyJSON, token)).then(res =>{
-        if (res.status == 400) {
-          return null
+        if (response.status === 400) {
+            this.showSnackBar("Invalid request", "red");
+            return;
         }
-      return  res.json()
-      } ).then((jsonObject) => {
+        let jsonObject = await response.json();
         if (jsonObject !== null) {
-          if (this.editedAmuta.email !== this.details.email) {
-            this.renamePictureFolder(this.details.email,this.editedAmuta.email)
-          }
-          this.showSpinner = false;
-          this.$emit("Updated");
+        if (this.editedAmuta.email !== this.details.email) {
+            this.renamePictureFolder(this.details.email, this.editedAmuta.email);
         }
-      }).catch((error) => {
-           this.showSnackBar("Error on update details: " + error, "red");
-           this.showSpinner = false;
-      });
+        this.$emit("Updated");
+      }
+    } catch (error) {
+        this.showSnackBar("Error updating details: " + error, "red");
+    } finally {
+        this.showSpinner = false;
+    }
     },
     renamePictureFolder(oldMail,newMail){
         let MyJSON = JSON.stringify({oldMail: oldMail, newMail: newMail});

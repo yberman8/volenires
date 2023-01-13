@@ -22,71 +22,89 @@
 
     <v-row class="d-flex">
       <v-col cols="12" sm="6" md="4" v-for="(item, index) in showPirsumim">
+        <v-hover v-slot="{ hover }" open-delay="100">
+          <v-card class="mx-auto mb-5 mt-5" max-width="340px" :style="activeColor(item.status_pirsum)"
+            :elevation="hover ? 16 : 2">
 
-        <v-card class="mx-auto mb-5 mt-5" max-width="340px" :style="activeColor(item.status_pirsum)">
+            <v-img class="white--text align-end subheading" height="150px" :src="item.logo" contain>
+            </v-img>
 
-          <v-img class="white--text align-end subheading" height="150px" :src="item.logo" contain>
-          </v-img>
+            <v-card-subtitle class="pb-0 d-flex">
+              <div>
+                {{ item.fullDatePlusHeb }}
+              </div>
+              <v-spacer></v-spacer>
+              <div>{{ item.city }}</div>
 
-          <v-card-subtitle class="pb-0 d-flex">
-            <div>
-              {{ item.fullDatePlusHeb }}
-            </div>
-            <v-spacer></v-spacer>
-            <div>{{ item.city }}</div>
+            </v-card-subtitle>
 
-          </v-card-subtitle>
+            <v-card-title class="pt-0">
+              <span v-if="item.status_pirsum === 'פעילים'">{{ item.title }} </span>
+              <div v-else>
+                <div>{{ " הסתיים!" }}</div>
+                <div>{{ item.text_finish }} </div>
+              </div>
+            </v-card-title>
 
-          <v-card-title class="pt-0">
-            <span v-if="item.status_pirsum === 'פעילים'">{{ item.title }} </span>
-            <div v-else>
-              <div>{{ " הסתיים!" }}</div>
-              <div>{{ item.text_finish }} </div>
-            </div>
-          </v-card-title>
+            <v-card-subtitle class="pb-5 font-weight-regular">
+              <span v-if="item.status_pirsum === 'פעילים'">{{ item.content }} </span>
+              <span v-else class="d-flex justify-center"> <img src="../../assets/icons/champagne-bottle.svg"
+                  alt="שמפניה" class="w-25"> </span>
+              <v-img class="white--text align-end subheading"
+                v-if="item.status_pirsum === 'פעילים' && item.picture !== ''" height="100px" :src="item.picture"
+                contain></v-img>
 
-          <v-card-subtitle class="pb-5 font-weight-regular">
-            <span v-if="item.status_pirsum === 'פעילים'">{{ item.content }} </span>
-            <span v-else class="d-flex justify-center"> <img src="../../assets/icons/champagne-bottle.svg" alt="שמפניה"
-                class="w-25"> </span>
-         <v-img class="white--text align-end subheading" v-if="item.status_pirsum === 'פעילים' && item.picture !== ''" height="100px" :src="item.picture" contain></v-img>
+            </v-card-subtitle>
+            <v-card-subtitle v-if="item.status_pirsum === 'פעילים'" class="pb-0 font-weight-regular">
+              {{ "כתובת איסוף: " + item.pick_up_address }}
+            </v-card-subtitle>
+            <v-card-actions v-if="item.status_pirsum === 'פעילים'">
 
-          </v-card-subtitle>
-          <v-card-subtitle v-if="item.status_pirsum === 'פעילים'" class="pb-0 font-weight-regular">
-            {{ "כתובת איסוף: " + item.pick_up_address }}
-          </v-card-subtitle>
-          <v-card-actions v-if="item.status_pirsum === 'פעילים'">
+              <v-btn icon @click="share(item)">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on">
+                      mdi-share
+                    </v-icon>
+                  </template>
+                  <span>שתף פרסום</span>
+                </v-tooltip>
+              </v-btn>
 
-            <v-btn icon @click="share(item)">
-              <v-icon>mdi-share </v-icon>
-            </v-btn>
+              <v-btn icon :href="item.website" target="_blank" class="me-5">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on">
+                      mdi-web
+                    </v-icon>
+                  </template>
+                  <span>אתר העמותה</span>
+                </v-tooltip>
+              </v-btn>
 
-            <v-btn icon :href="item.website" target="_blank" class="me-5">
-              <v-icon>mdi-web </v-icon>
-            </v-btn>
+              <v-spacer></v-spacer>
 
-            <v-spacer></v-spacer>
+              <v-btn icon class="ms-5" v-if="item.pirsum_show_phone === 1">
+                <a :href='("tel:" + item.phone)' style="text-decoration: none;">
+                  <v-icon>mdi-phone </v-icon>
+                </a>
+              </v-btn>
 
-            <v-btn icon class="ms-5" v-if="item.pirsum_show_phone === 1">
-              <a :href='("tel:" + item.phone)' style="text-decoration: none;">
-                <v-icon>mdi-phone </v-icon>
-              </a>
-            </v-btn>
+              <v-btn icon class="ms-5" v-if="item.pirsum_show_email === 1">
+                <a :href='"mailto:" + item.email + "?subject="' style="text-decoration: none;">
+                  <v-icon>mdi-email </v-icon>
+                </a>
+              </v-btn>
 
-            <v-btn icon class="ms-5" v-if="item.pirsum_show_email === 1">
-              <a :href='"mailto:" + item.email + "?subject="' style="text-decoration: none;">
-                <v-icon>mdi-email </v-icon>
-              </a>
-            </v-btn>
+              <v-btn icon color="green" :href="'https://wa.me/972' + item.whatsapp + '?text=' + 'היי ראיתי את הפרסום'
+              + ' ' + item.title + ' בחיבורים'" target="_blank" v-if="item.pirsum_show_whatsapp === 1">
+                <v-icon>mdi-whatsapp </v-icon>
+              </v-btn>
 
-            <v-btn icon color="green" :href="'https://wa.me/972' + item.whatsapp + '?text=' + 'היי ראיתי את הפרסום'
-            + ' ' + item.title + ' בחיבורים'" target="_blank" v-if="item.pirsum_show_whatsapp === 1">
-              <v-icon>mdi-whatsapp </v-icon>
-            </v-btn>
+            </v-card-actions>
 
-          </v-card-actions>
-
-        </v-card>
+          </v-card>
+        </v-hover>
 
       </v-col>
     </v-row>
@@ -103,7 +121,7 @@
 
   </div>
 </template>
-  
+
 <script>
 import ShareDialog from './ShareDialog.vue'
 import RequestOptions from '../../tools/RequestOptions.js'
@@ -127,7 +145,7 @@ export default {
       showPirsumim: [],
       shareItem: {},
       fulldate: "",
-      host:""
+      host: ""
     }
   },
   methods: {
@@ -152,7 +170,7 @@ export default {
       this.showPirsumim = [];
       let api = this.host + "/home/getAllPirsumim"
 
-      fetch(api ).then(res => res.json()).then(async (jsonObject) => {
+      fetch(api).then(res => res.json()).then(async (jsonObject) => {
         for (let i = 0; i < jsonObject.length; i++) {
           const date = new Date(jsonObject[i].date_create_pirsum);
           this.fulldate = await FullDate.dateCalc(date)
@@ -169,25 +187,25 @@ export default {
       });
 
     },
-   
+
     // פונקציית קולבאק במידה ובחרו סינון 
     async getPirsumimListFilterd() {
-     
+
       this.showPirsumim = [];
-      let objFiltered = {status: this.selectActiveModel,zone: this.selectZoneModel}
-        let MyJSON = JSON.stringify(objFiltered);
+      let objFiltered = { status: this.selectActiveModel, zone: this.selectZoneModel }
+      let MyJSON = JSON.stringify(objFiltered);
 
-        let api = this.host + "/home/getPirsumimFiltered"
+      let api = this.host + "/home/getPirsumimFiltered"
 
-        fetch(api, RequestOptions.request("POST", MyJSON,"")).then(res => res.json()).then(async (jsonObject) => {
-          for (let i = 0; i < jsonObject.length; i++) {
+      fetch(api, RequestOptions.request("POST", MyJSON, "")).then(res => res.json()).then(async (jsonObject) => {
+        for (let i = 0; i < jsonObject.length; i++) {
           const date = new Date(jsonObject[i].date_create_pirsum);
           this.fulldate = await FullDate.dateCalc(date)
           jsonObject[i].date_create_pirsum = date;
           jsonObject[i].fullDatePlusHeb = this.fulldate;
           this.showPirsumim.push(jsonObject[i]);
         }
-        }).then(() => {
+      }).then(() => {
         this.progressShow = false;
         this.sortListByDate();
       }).catch((error) => {
@@ -225,4 +243,3 @@ export default {
 <style>
 
 </style>
-  

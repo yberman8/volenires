@@ -70,7 +70,7 @@ export default {
                 showPhone: true,
                 showEmail: true,
                 showWhatsapp: true,
-                host:""
+                host: ""
             },
         }
     },
@@ -84,7 +84,7 @@ export default {
 
             let token = localStorage.getItem("token");
 
-            
+
             let editDefaultsObj = {
                 showEmail: this.defaultItem.showEmail,
                 showWhatsapp: this.defaultItem.showWhatsapp,
@@ -116,21 +116,16 @@ export default {
             }
         },
     },
+
     created() {
         this.host = process.env.VUE_APP_BASE_URL;
 
-        this.defaultItem.showEmail = this.defaultObj.defaultShEmail;
-        this.defaultItem.showPhone = this.defaultObj.defaultShPhone;
-        this.defaultItem.showWhatsapp = this.defaultObj.defaultShWhatsapp;
-        if (this.defaultItem.showEmail === 0) {
-            this.defaultItem.showEmail = false;
-        }
-        if (this.defaultItem.showPhone === 0) {
-            this.defaultItem.showPhone = false;
-        }
-        if (this.defaultItem.showWhatsapp === 0) {
-            this.defaultItem.showWhatsapp = false;
-        }
+        // קבלת הגדרות ברירת המחדל השמורות
+        this.defaultItem = {
+            showEmail: Boolean(this.defaultObj.defaultShEmail),
+            showPhone: Boolean(this.defaultObj.defaultShPhone),
+            showWhatsapp: Boolean(this.defaultObj.defaultShWhatsapp),
+        };
     },
 
 }

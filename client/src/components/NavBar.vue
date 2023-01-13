@@ -2,30 +2,24 @@
 
   <v-main>
 
-    <v-app-bar  color="red lighten-1" dark rounded >
+    <v-app-bar color="red lighten-1" dark rounded>
 
-     <v-toolbar-title>
+      <v-toolbar-title>
         <router-link to="/">
-        <v-img alt="Vuetify Logo" class="shrink mr-2" style="border-radius: 10px;" contain src="../assets/giveItIcon.png" 
-          transition="scale-transition" max-width="80"  />
+          <v-img alt="Vuetify Logo" class="shrink mr-2" style="border-radius: 10px;" contain
+            src="../assets/giveItIcon.png" transition="scale-transition" max-width="80" />
         </router-link>
       </v-toolbar-title>
 
-      <!-- <v-toolbar-title>
-        <router-link to="/">
-        <v-img alt="Vuetify Logo" class="shrink mr-2" contain src="../assets/giveItIcon.png"
-          transition="scale-transition" width="80"  />
-        </router-link>
-      </v-toolbar-title> -->
-
       <v-toolbar-items class="hidden-sm-and-down ms-3">
-        <v-btn v-for="item in menu" :key="item.id" :to="item.link" text v-if="item.show">{{item.title}}</v-btn>
+        <v-btn v-for="item in menu" :key="item.id" :to="item.link" text v-if="item.show">{{ item.title }}</v-btn>
       </v-toolbar-items>
 
       <v-spacer></v-spacer>
 
+     
       <v-btn depressed @click="loginOrOutFunc('auth')" class="hidden-sm-and-down">
-        {{authButton}}
+        {{ authButton }}
       </v-btn>
 
       <div class="hidden-md-and-up">
@@ -59,13 +53,13 @@
   </v-main>
 
 </template>
-  
+
 <script>
 
 
 
 export default {
-  props:{
+  props: {
     ifAuth: Boolean,
     uid: String,
     isAdmin: Boolean
@@ -75,6 +69,7 @@ export default {
   },
   data() {
     return {
+      drawer: false,
       authButton: "יציאה",
       menu: [],
       snackbar: false,
@@ -83,53 +78,50 @@ export default {
     }
   },
   methods: {
-   
+
     loginOrOutFunc(key) {
 
       if (key === "auth") {
         if (this.authButton === "יציאה") {
-          localStorage.setItem("uid","");
-          localStorage.setItem("token","");
+          localStorage.setItem("uid", "");
+          localStorage.setItem("token", "");
           this.$emit("checkAuth");
-          this.showSnackBar("התנתקת מהחשבון","green");
+          this.showSnackBar("התנתקת מהחשבון", "green");
         }
 
-        }
-        if (this.authButton === "התחבר") {
+      }
+      if (this.authButton === "התחבר") {
         this.$emit("login");
-        }
-       
-      
+      }
     },
-    setNavListIfAuth(){
 
-      if (this.ifAuth === true && this.isAdmin !== true) {
+    setNavListIfAuth() {
+
+      if (this.ifAuth === true) {
         this.authButton = "יציאה"
-        this.menu = [
-        { id: "home", title: "דף הבית", link: "/", show: true },
-        { id: "about", title: "אודות", link: "/about", show: true },
-        { id: "amutaManager", title: "אזור אישי", link: "/amutaManage", show: true},
-        { id: "auth", title: "יציאה", show: false}
-      ]
-      }
-
-      if (this.ifAuth === true && this.isAdmin === true) {
-        this.authButton = "יציאה"
-        this.menu = [
-        { id: "home", title: "דף הבית", link: "/", show: true },
-        { id: "about", title: "אודות", link: "/about", show: true },
-        { id: "manager", title: "ניהול עמותות", link: "/adminManage", show: true},
-        { id: "auth", title: "יציאה", show: false}
-      ]
-      }
-
-      if (this.ifAuth === false) {
+        // Check if user is an admin
+        if (this.isAdmin === true) {
+          this.menu = [
+            { id: "home", title: "דף הבית", link: "/", show: true },
+            { id: "about", title: "אודות", link: "/about", show: true },
+            { id: "manager", title: "ניהול עמותות", link: "/adminManage", show: true },
+            { id: "auth", title: "יציאה", show: false }
+          ]
+        } else {
+          this.menu = [
+            { id: "home", title: "דף הבית", link: "/", show: true },
+            { id: "about", title: "אודות", link: "/about", show: true },
+            { id: "amutaManager", title: "אזור אישי", link: "/amutaManage", show: true },
+            { id: "auth", title: "יציאה", show: false }
+          ]
+        }
+      } else {
         this.authButton = "התחבר"
         this.menu = [
-        { id: "home", title: "דף הבית", link: "/", show: true },
-        { id: "about", title: "אודות", link: "/about", show: true },
-        { id: "auth", title: "התחבר", show: false},]
-
+          { id: "home", title: "דף הבית", link: "/", show: true },
+          { id: "about", title: "אודות", link: "/about", show: true },
+          { id: "auth", title: "התחבר", show: false },
+        ]
       }
 
     },
@@ -139,18 +131,17 @@ export default {
       this.snackbar = true;
     },
   },
-  watch:{
-    ifAuth(){
-    this.setNavListIfAuth();
+  watch: {
+    ifAuth() {
+      this.setNavListIfAuth();
     },
-    isAdmin(){
-    this.setNavListIfAuth();
+    isAdmin() {
+      this.setNavListIfAuth();
     }
   },
   created() {
     this.setNavListIfAuth();
-    
+
   },
 }
 </script>
-  

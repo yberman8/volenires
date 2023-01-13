@@ -40,7 +40,9 @@
 
           <v-card-subtitle class="pb-0 font-weight-regular">
             {{ item.content }}
-            <v-img class="white--text align-end subheading" v-if="item.status_pirsum === 'פעילים' && item.picture !== ''" height="100px" :src="item.picture" contain></v-img>
+            <v-img class="white--text align-end subheading"
+              v-if="item.status_pirsum === 'פעילים' && item.picture !== ''" height="100px" :src="item.picture"
+              contain></v-img>
           </v-card-subtitle>
           <v-card-subtitle class="pb-0 font-weight-regular">
             {{ "כתובת איסוף: " + item.pick_up_address }}
@@ -112,7 +114,7 @@
 
   </div>
 </template>
-  
+
 <script>
 import RequestOptions from '../../tools/RequestOptions.js'
 import FullDate from '../../tools/FullDate.js'
@@ -144,7 +146,7 @@ export default {
       itemTodeleteIndex: 0,
       itemToCompleteIndex: 0,
       fulldate: "",
-      host:""
+      host: ""
     }
   },
   methods: {
@@ -166,7 +168,6 @@ export default {
       let token = localStorage.getItem("token");
       let deletePirsumID = { pirsum_id: this.itemTodelete }
       let MyJSON = JSON.stringify(deletePirsumID);
-      console.log(this.amutaEmail);
       let api = this.host + "/admin/deletePirsum"
 
       fetch(api, RequestOptions.request("DELETE", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
@@ -181,15 +182,15 @@ export default {
         this.dialogDelete = false
       });
 
-      
+
     },
     async deleteFolderImages() {
       let token = localStorage.getItem("token");
-      let MyJSON = JSON.stringify({ pirsum_id: this.itemTodelete,amutaEmail: this.amutObj.email});
+      let MyJSON = JSON.stringify({ pirsum_id: this.itemTodelete, amutaEmail: this.amutObj.email });
       let api = this.host + "/amuta/deleteFolderImages"
 
       fetch(api, RequestOptions.request("POST", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
-      console.log("התמונות נמחקו בהצלחה");
+        console.log("התמונות נמחקו בהצלחה");
       }).catch((error) => {
         console.log(" התמונות לא נמחקו" + error);
       });
@@ -203,20 +204,20 @@ export default {
 
       this.progressShowDialog = true;
 
-      let editAmutastatus = { id_pirsum: this.itemToComplete.id_pirsum}
+      let editAmutastatus = { id_pirsum: this.itemToComplete.id_pirsum }
       let MyJSON = JSON.stringify(editAmutastatus);
       let token = localStorage.getItem("token");
 
       let api = this.host + "/admin/finishPirsum"
 
       fetch(api, RequestOptions.request("PUT", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
-          this.progressShowDialog = false;
+        this.progressShowDialog = false;
         this.showSnackBar("הפרסום הסתיים בהצלחה!", "green");
         this.dialogComplete = false
         this.itemToComplete.status_pirsum = "הסתיימו"
         let g = Object.assign(this.showPirsumim[this.itemToCompleteIndex], this.itemToComplete);
       }).catch((error) => {
-         this.showSnackBar("Error on change status: " + error, "red");
+        this.showSnackBar("Error on change status: " + error, "red");
         this.progressShowDialog = false;
       });
     },
@@ -228,22 +229,24 @@ export default {
       this.snackbarColorBt = color;
       this.snackbar = true;
     },
+
     async getAmutaPirsumim(filtered) {
       let amutaId = localStorage.getItem('amutaId');
 
       let newAmutaObj = {
-          amutaId: amutaId,
-          status: filtered,
-        }
-        let MyJSON = JSON.stringify(newAmutaObj);
-        let token = localStorage.getItem("token");
+        amutaId: amutaId,
+        status: filtered,
+      }
+      let MyJSON = JSON.stringify(newAmutaObj);
+      let token = localStorage.getItem("token");
 
-      this.progressShow = true
-
+      this.progressShow = true;
       this.showPirsumim = [];
-      let api = this.host + "/admin/getAmutaPirsumim"
+      let api = this.host + "/admin/getAmutaPirsumim";
 
-        fetch(api, RequestOptions.request("POST", MyJSON,token)).then(res => res.json()).then(async (jsonObject) => {
+      try {
+        let response = await fetch(api, RequestOptions.request("POST", MyJSON, token));
+        let jsonObject = await response.json();
         for (let i = 0; i < jsonObject.length; i++) {
           const date = new Date(jsonObject[i].date_create_pirsum);
           this.fulldate = await FullDate.dateCalc(date);
@@ -251,15 +254,16 @@ export default {
           jsonObject[i].fullDatePlusHeb = this.fulldate;
           this.showPirsumim.push(jsonObject[i]);
         }
-      }).then(() => {
-        this.progressShow = false;
         this.sortListByDate();
-      }).catch((error) => {
+      } catch (error) {
         this.progressShow = false;
         this.showSnackBar("Error get amutot list: " + error, "red");
-      });
-
+      } finally {
+        this.progressShow = false;
+      }
     },
+
+
     activeColor(status) {
       if (status === "הסתיימו") {
         return "background-color: #f3f1ef;"
@@ -284,7 +288,7 @@ export default {
       this.showPirsumim = [];
       this.getAmutaPirsumim(this.selectActiveModel);
     },
-    amutObj(){
+    amutObj() {
       console.log(this.amutObj);
 
     }
@@ -299,4 +303,3 @@ export default {
 <style>
 
 </style>
-  

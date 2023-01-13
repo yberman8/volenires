@@ -90,7 +90,7 @@ export default {
                 this.showPirsumim = [];
                 let api = this.host + "/amuta/Login"
 
-             fetch(api, RequestOptions.request("POST", MyJSON, "")).then(res => res.json()).then((jsonObject) => {
+                fetch(api, RequestOptions.request("POST", MyJSON, "")).then(res => res.json()).then((jsonObject) => {
                     if (jsonObject === "auth failed") {
                         this.showSnackBar("שגיאת התחברות", "red");
                         this.loading = false;
@@ -104,18 +104,18 @@ export default {
                         }, 700);
                     }
                 }).catch((error) => {
-                        this.showSnackBar("Error get amutot list: " + error, "red");
-                        setTimeout(() => {
-                            this.openMode = false
-                        }, 800);
-                    });
+                    this.showSnackBar("Error get amutot list: " + error, "red");
+                    setTimeout(() => {
+                        this.openMode = false
+                    }, 800);
+                });
             }
         },
         async forgotPassword() {
-
-            if (this.email === "") {
-                return this.$emit('show', "יש להזין כתובת אימייל לצורך האיפוס", "red");
+            if (!this.validateEmail(this.email)) {
+                return this.$emit('show', "יש להזין כתובת אימייל תקנית לצורך האיפוס", "red");
             }
+        
             this.progressShow = true;
             let MyJSON = JSON.stringify({ email: this.email });
 
@@ -135,6 +135,11 @@ export default {
                 this.showSnackBar("Error sending email: " + error, "red");
             }
         },
+        validateEmail(email) {
+            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        },
+
         showSnackBar(message, color) {
             this.snacbarText = message;
             this.snackbarColorBt = color;

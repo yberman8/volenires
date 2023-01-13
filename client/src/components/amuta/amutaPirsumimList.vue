@@ -223,32 +223,34 @@ export default {
       this.snackbarColorBt = color;
       this.snackbar = true;
     },
+
     async getAmutaPirsumim(filtered) {
+    this.progressShow = true;
+    let token = localStorage.getItem("token");
+    let MyJSON = JSON.stringify({ filtered: filtered });
+    this.showPirsumim = [];
+    let api = this.host + "/amuta/getAllPirsumim";
 
-      this.progressShow = true
-      let token = localStorage.getItem("token");
+    try {
+        let response = await fetch(api, RequestOptions.request("POST", MyJSON, token));
+        let jsonObject = await response.json();
 
-      let MyJSON = JSON.stringify({ filtered: filtered });
-
-      this.showPirsumim = [];
-      let api = this.host + "/amuta/getAllPirsumim"
-
-      fetch(api, RequestOptions.request("POST", MyJSON, token)).then(res => res.json()).then(async (jsonObject) => {
         for (let i = 0; i < jsonObject.length; i++) {
-          const date = new Date(jsonObject[i].date_create_pirsum);
-          this.fulldate = await FullDate.dateCalc(date);
-          jsonObject[i].date_create_pirsum = date;
-          jsonObject[i].fullDatePlusHeb = this.fulldate;
-          this.showPirsumim.push(jsonObject[i]);
+            const date = new Date(jsonObject[i].date_create_pirsum);
+            this.fulldate = await FullDate.dateCalc(date);
+            jsonObject[i].date_create_pirsum = date;
+            jsonObject[i].fullDatePlusHeb = this.fulldate;
+            this.showPirsumim.push(jsonObject[i]);
         }
-      }).then(() => {
-        this.progressShow = false;
         this.sortListByDate();
-      }).catch((error) => {
+    } catch (error) {
+        this.showSnackBar("Error getting pirsumim list: " + error, "red");
+    } finally {
         this.progressShow = false;
-        this.showSnackBar("Error get amutot list: " + error, "red");
-      });
-    },
+    }
+},
+
+
     activeColor(status) {
       if (status === "הסתיימו") {
         return "background-color: #f3f1ef;"

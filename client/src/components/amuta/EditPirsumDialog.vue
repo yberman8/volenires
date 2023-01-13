@@ -132,7 +132,7 @@ export default {
                 showPhone: true,
                 showEmail: true,
                 showWhatsapp: true,
-                host:""
+                host: ""
                 // srcVolentires: true,
             },
             picture: "",
@@ -204,10 +204,10 @@ export default {
             });
         },
         showSnackBar(message, color) {
-      this.snacbarText = message;
-      this.snackbarColorBt = color;
-      this.snackbar = true;
-    },
+            this.snacbarText = message;
+            this.snackbarColorBt = color;
+            this.snackbar = true;
+        },
     },
     computed: {
         openMode: {
@@ -249,44 +249,36 @@ export default {
             }
         }
     },
+
     created() {
         this.host = process.env.VUE_APP_BASE_URL;
-
+        this.editedItem = {};
         if (!this.isNew) {
             this.formTitle = "ערוך פרסום";
             this.formButton = "עדכן"
-            this.editedItem.title = this.pirsumEditObj.title
-            this.editedItem.content = this.pirsumEditObj.content
-            this.editedItem.pickUpAddress = this.pirsumEditObj.pick_up_address
-            this.editedItem.onFinish = this.pirsumEditObj.text_finish
-            this.editedItem.zone = this.pirsumEditObj.zone
-            this.editedItem.picture = this.pirsumEditObj.picture
+            this.editedItem = {
+                title: this.pirsumEditObj.title,
+                content: this.pirsumEditObj.content,
+                pickUpAddress: this.pirsumEditObj.pick_up_address,
+                onFinish: this.pirsumEditObj.text_finish,
+                zone: this.pirsumEditObj.zone,
+                picture: this.pirsumEditObj.picture,
+                showPhone: Boolean(this.pirsumEditObj.pirsum_show_phone),
+                showEmail: Boolean(this.pirsumEditObj.pirsum_show_email),
+                showWhatsapp: Boolean(this.pirsumEditObj.pirsum_show_whatsapp),
+            };
             this.pictureText = this.editedItem.picture.split(`com/pictures/${this.pirsumEditObj.id_pirsum}/`)[1];
-            if (this.pirsumEditObj.pirsum_show_phone === 0) {
-                this.editedItem.showPhone = false;
-            }
-            if (this.pirsumEditObj.pirsum_show_email === 0) {
-                this.editedItem.showEmail = false;
-            }
-            if (this.pirsumEditObj.pirsum_show_whatsapp === 0) {
-                this.editedItem.showWhatsapp = false;
-            }
-
         } else {
             this.formTitle = "הוסף פרסום";
-            this.formButton = "שמור"
-            if (this.defaultStObj.defaultShPhone === 0) {
-                this.editedItem.showPhone = false;
-            }
-            if (this.defaultStObj.defaultShEmail === 0) {
-                this.editedItem.showEmail = false;
-            }
-            if (this.defaultStObj.defaultShWhatsapp === 0) {
-                this.editedItem.showWhatsapp = false;
-            }
+            this.formButton = "שמור";
+            this.editedItem = {
+                showPhone: Boolean(this.defaultStObj.defaultShPhone),
+                showEmail: Boolean(this.defaultStObj.defaultShEmail),
+                showWhatsapp: Boolean(this.defaultStObj.defaultShWhatsapp),
+            };
         }
-
     },
+
     watch: {
         picture() {
 
@@ -306,7 +298,7 @@ export default {
                 formData.append("my", this.picture);
                 formData.append("emailAmuta", this.amutObj.email);
                 formData.append("picture_or_logo", "pictures/");
-                formData.append("pirsum_id",this.pirsumEditObj.id_pirsum);
+                formData.append("pirsum_id", this.pirsumEditObj.id_pirsum);
                 request.open("POST", api, true);
                 request.setRequestHeader("Authorization", "Bearer " + token)
                 request.send(formData);
@@ -322,22 +314,22 @@ export default {
             };
             if (!this.picture) {
                 if (this.isNew) {
-                this.showSnackBar("תמונה לא קיימת", "red");
-                return
-            }
-            this.progressShow = true;
-            let token = localStorage.getItem("token");
-           
-            let MyJSON = JSON.stringify({picturePath: this.editedItem.picture,pirsum_id: this.pirsumEditObj.id_pirsum});
+                    this.showSnackBar("תמונה לא קיימת", "red");
+                    return
+                }
+                this.progressShow = true;
+                let token = localStorage.getItem("token");
 
-            let api = this.host + "/amuta/deleteImage"
+                let MyJSON = JSON.stringify({ picturePath: this.editedItem.picture, pirsum_id: this.pirsumEditObj.id_pirsum });
 
-            fetch(api, RequestOptions.request("POST", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
-                this.editedItem.picture = "";
-                this.progressShow = false;
-            }).catch((error) => {
-                this.progressShow = false;
-            }); 
+                let api = this.host + "/amuta/deleteImage"
+
+                fetch(api, RequestOptions.request("POST", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
+                    this.editedItem.picture = "";
+                    this.progressShow = false;
+                }).catch((error) => {
+                    this.progressShow = false;
+                });
             }
         }
     },

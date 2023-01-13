@@ -12,14 +12,24 @@
             <v-dialog v-model="dialog" max-width="800px">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn small color="black" dark class="mb-2 ms-2">
-                  <v-icon dark @click="downloadExcel()">
-                    mdi-file-download
-                  </v-icon>
+                  <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" dark @click="downloadExcel()">
+                  mdi-file-download
+                </v-icon>
+              </template>
+              <span>הורד לקובץ אקסל</span>
+            </v-tooltip>
                 </v-btn>
                 <v-btn small color="black" dark class="mb-2 ms-2" v-bind="attrs" v-on="on">
-                  <v-icon dark>
-                    mdi-plus
-                  </v-icon>
+                  <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" dark>
+                  mdi-plus
+                </v-icon>
+              </template>
+              <span>הוסף עמותה</span>
+            </v-tooltip>
                   חדש
                 </v-btn>
 
@@ -89,20 +99,40 @@
             </v-switch>
           </template>
           <template v-slot:item.actions="{ item }">
-            <v-icon medium class="me-3" @click="show(item)">
-              mdi-eye
-            </v-icon>
-            <v-icon medium class="mr-2 me-3" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon medium class="mr-2 me-3" @click="changeAmutaPassword(item)">
-              mdi-account-key
-            </v-icon>
-            <v-icon medium class="me-3" @click="deleteItem(item)">
-              mdi-delete
-            </v-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" medium class="me-3" @click="show(item)">
+                  mdi-eye
+                </v-icon>
+              </template>
+              <span>צפה בעמותה</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" medium class="mr-2 me-3" @click="editItem(item)">
+                  mdi-pencil
+                </v-icon>
+              </template>
+              <span>עריכת עמותה</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" medium class="mr-2 me-3" @click="changeAmutaPassword(item)">
+                  mdi-account-key
+                </v-icon>
+              </template>
+              <span>איפוס סיסמה</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" medium class="me-3" @click="deleteItem(item)">
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span>מחיקת עמותה</span>
+            </v-tooltip>
           </template>
-        
+
           <template v-slot:no-data>
             <v-row v-if="progressShow" class="my-5">
               <v-col class="d-flex justify-center">
@@ -178,7 +208,7 @@ export default {
       phone: "",
       notes: "",
     },
-    host:""
+    host: ""
   }),
 
   computed: {
@@ -203,71 +233,71 @@ export default {
   },
 
   methods: {
+
     async enableOrdisable(statusCurrent, id) {
 
-      let message = "הסוכן הושבת בהצלחה";
-      let messageColor = "red";
-      let status = 0;
-
-      if (statusCurrent === true) {
-        message = "הסוכן הופעל בהצלחה";
-        status = 1
-        messageColor = "green"
-      }
-
+      let status = statusCurrent ? 1 : 0;
+      let message = statusCurrent ? "הסוכן הופעל בהצלחה" : "הסוכן הושבת בהצלחה";
+      let messageColor = statusCurrent ? "green" : "red";
       let editAmutastatus = { id: id, status: status }
-      let MyJSON = JSON.stringify(editAmutastatus);
-      let token = localStorage.getItem("token");
 
-      let api = this.host + "/admin/enableOrDisableAmuta"
-
-      fetch(api, RequestOptions.request("PUT", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
+      try {
+        let token = localStorage.getItem("token");
+        let api = this.host + "/admin/enableOrDisableAmuta"
+        let response = await fetch(api, RequestOptions.request("PUT", JSON.stringify(editAmutastatus), token));
+        let jsonObject = await response.json();
         this.showSnackBar(message, messageColor);
-        this.progressShow = false
-      }).catch((error) => {
+      } catch (error) {
+        this.showSnackBar(`שגיאה בשינוי סטטוס עמותה: ${error}`, "red");
+      } finally {
         this.progressShow = false;
-        this.showSnackBar("שגיאה בשינוי סטטוס עמותה: " + error, "red");
-      });
-
+      }
     },
+
     async initialize() {
+      try {
+        this.desserts = [];
+        this.progressShow = true;
+        let token = localStorage.getItem("token");
 
-      this.desserts = [];
-      this.progressShow = true;
-      let token = localStorage.getItem("token");
+        let api = this.host + "/admin/getAllAmutot";
+        const res = await fetch(api, RequestOptions.request("POST", "", token));
+        const jsonObject = await res.json();
 
-      let api = this.host + "/admin/getAllAmutot";
+        jsonObject.forEach(item => {
+          item.num_of_pirsumim = "0";
+          this.desserts.push(item);
+          console.log(item);
+        });
 
-      fetch(api, RequestOptions.request("POST", "", token)).then(res => res.json()).then((jsonObject) => {
-        for (let i = 0; i < jsonObject.length; i++) {
-          jsonObject[i].num_of_pirsumim ="0";
-          this.desserts.push(jsonObject[i]);
-        }
-        this.progressShow = false
         this.getNumOfPirsumim();
-      }).catch((error) => {
+        this.progressShow = false;
+
+      } catch (error) {
         this.progressShow = false;
         this.showSnackBar("Error get amutot list: " + error, "red");
-      });
-
+      }
     },
-    getNumOfPirsumim() {
-      let token = localStorage.getItem("token");
-      let api = this.host + "/admin/getNumOfPirsumim";
 
-      fetch(api, RequestOptions.request("POST", "", token)).then(res => res.json()).then((jsonObject) => {
+    async getNumOfPirsumim() {
+      try {
+        let token = localStorage.getItem("token");
+        let api = this.host + "/admin/getNumOfPirsumim";
+
+        let response = await fetch(api, RequestOptions.request("POST", "", token));
+        let jsonObject = await response.json();
         for (let i = 0; i < jsonObject.length; i++) {
-          for (let e = 0; e < this.desserts.length; e++) {
-             if (jsonObject[i].amuta_id === this.desserts[e].id) {
-               this.desserts[e].num_of_pirsumim = jsonObject[i].count_of_pirsumim
-             }            
+          let amuta = this.desserts.find(item => item.id === jsonObject[i].amuta_id);
+          if (amuta) {
+            amuta.num_of_pirsumim = jsonObject[i].count_of_pirsumim;
           }
         }
-      }).catch((error) => {
-        console.log(error);
-      });
+      } catch (error) {
+        this.showSnackBar("Error getting the number of publications: " + error, "red");
+      }
     },
-    changeAmutaPassword(item){
+
+    changeAmutaPassword(item) {
       this.$router.push({ name: 'resetPasswordAdmin', params: { amutObj: item } })
     },
     downloadExcel() {
@@ -293,16 +323,19 @@ export default {
     show(item) {
       this.$router.push({ name: 'editPirsumimAdmih', params: { amutObj: item } });
     },
+
     async deleteItemConfirm() {
+      try {
+        this.progressShow = true;
+        let deleteAmutaID = { id: this.amutaToDelete }
+        let MyJSON = JSON.stringify(deleteAmutaID);
+        let token = localStorage.getItem("token");
 
-      this.progressShow = true;
-      let deleteAmutaID = { id: this.amutaToDelete }
-      let MyJSON = JSON.stringify(deleteAmutaID);
-      let token = localStorage.getItem("token");
+        let api = this.host + "/admin/deleteAmuta"
 
-      let api = this.host + "/admin/deleteAmuta"
+        let res = await fetch(api, RequestOptions.request("DELETE", MyJSON, token));
+        let jsonObject = await res.json();
 
-      fetch(api, RequestOptions.request("DELETE", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
         if (jsonObject.code === "ER_ROW_IS_REFERENCED_2") {
           this.showSnackBar("שגיאה במחיקת עמותה: " + "יש פרסומים השייכים לעמותה זו, יש למחוק את הפרסומים ", "red");
           this.progressShow = false
@@ -312,10 +345,10 @@ export default {
         this.initialize();
         this.showSnackBar("העמותה נמחקה בהצלחה", "green");
         this.progressShow = false
-      }).catch((error) => {
+      } catch (error) {
         this.progressShow = false;
         this.showSnackBar("שגיאה במחיקת עמותה: " + error, "red");
-      });
+      }
     },
 
     close() {
@@ -336,7 +369,7 @@ export default {
       this.progressShow = true;
 
       if (this.editedIndex > -1) {
-        //  בעריכת עמותה
+        //edit amuta
 
         let editAmutaObj = { id: this.fullItemEdit.id, name: this.editedItem.name, email: this.editedItem.email, phone: this.editedItem.phone, notes: this.editedItem.notes }
         let MyJSON = JSON.stringify(editAmutaObj);
@@ -351,7 +384,7 @@ export default {
             return
           }
           if (this.fullItemEdit.email !== this.editedItem.email) {
-            this.renamePictureFolder(this.fullItemEdit.email,this.editedItem.email);
+            this.renamePictureFolder(this.fullItemEdit.email, this.editedItem.email);
           }
           this.close();
           this.initialize();
@@ -364,7 +397,7 @@ export default {
         });
 
       } else {
-        //  ביצירת עמותה חדשה
+        //  add amuta
 
         if (this.editedItem.email === "" || this.editedItem.name === "" || this.editedItem.phone === "") {
           this.progressShow = false;
@@ -400,16 +433,16 @@ export default {
       }
 
     },
-    renamePictureFolder(oldMail,newMail){
-        let MyJSON = JSON.stringify({id: this.fullItemEdit.id, oldMail: oldMail, newMail: newMail});
-        let token = localStorage.getItem("token");
+    renamePictureFolder(oldMail, newMail) {
+      let MyJSON = JSON.stringify({ id: this.fullItemEdit.id, oldMail: oldMail, newMail: newMail });
+      let token = localStorage.getItem("token");
 
-        let api = this.host + "/admin/renameFolderAmuta"
+      let api = this.host + "/admin/renameFolderAmuta"
 
-        fetch(api, RequestOptions.request("POST", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
-        }).catch((error) => {
-          this.showSnackBar("שגיאה בשינוי תיקיית עמותה: " + error, "red");
-        });
+      fetch(api, RequestOptions.request("POST", MyJSON, token)).then(res => res.json()).then((jsonObject) => {
+      }).catch((error) => {
+        this.showSnackBar("שגיאה בשינוי תיקיית עמותה: " + error, "red");
+      });
 
     },
 
@@ -430,4 +463,3 @@ export default {
 }
 </script>
 
- 
